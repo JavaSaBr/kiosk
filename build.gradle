@@ -1,0 +1,104 @@
+import org.gradle.internal.os.OperatingSystem
+
+plugins {
+    id "net.ltgt.apt" version "0.21"
+    id "com.github.johnrengelman.shadow" version "5.2.0"
+    id "application"
+}
+
+group 'com.ss.kiosk'
+version '0.0.1'
+
+sourceCompatibility = JavaVersion.VERSION_13
+targetCompatibility = JavaVersion.VERSION_13
+
+ext {
+    rlibVersion = "9.8.0"
+    micronautVersion = "1.2.0"
+    lombokVersion = "1.18.6"
+    jetbrainsAnnotation = "17.0.0"
+    javaFxVersion = "13.0.1"
+    logbackVersion = "1.2.3"
+}
+
+tasks.withType(JavaCompile) {
+    options.compilerArgs += ["--enable-preview"]
+}
+
+tasks.withType(Test) {
+    jvmArgs += ["--enable-preview"]
+}
+
+tasks.withType(JavaExec) {
+    jvmArgs += ['--enable-preview']
+}
+
+repositories {
+    mavenCentral()
+    maven { url "https://jcenter.bintray.com" }
+    maven { url "https://dl.bintray.com/javasabr/maven" }
+}
+
+configurations {
+    developmentOnly
+}
+
+dependencies {
+    
+    def osName = OperatingSystem.current().getName().toLowerCase()
+    
+    compileOnly "org.openjfx:javafx-graphics:$javaFxVersion:${osName}"
+    compileOnly "org.openjfx:javafx-base:$javaFxVersion:${osName}"
+    compileOnly "org.jetbrains:annotations:$jetbrainsAnnotation"
+    compileOnly "org.projectlombok:lombok:$lombokVersion"
+    annotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    
+    annotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    annotationProcessor "io.micronaut:micronaut-inject-java"
+    annotationProcessor "io.micronaut:micronaut-validation"
+    
+    implementation platform("io.micronaut:micronaut-bom:$micronautVersion")
+    implementation "io.micronaut:micronaut-inject"
+    implementation "io.micronaut:micronaut-validation"
+    implementation "io.micronaut:micronaut-runtime"
+    implementation "com.spaceshift:rlib.common:$rlibVersion"
+    
+    compile "org.openjfx:javafx-base:$javaFxVersion:${osName}"
+    compile "org.openjfx:javafx-graphics:$javaFxVersion:${osName}"
+    //compile "org.openjfx:javafx-graphics:$javaFxVersion:win"
+    //compile "org.openjfx:javafx-graphics:$javaFxVersion:mac"
+    
+    runtimeOnly "ch.qos.logback:logback-classic:$logbackVersion"
+    
+    testCompileOnly "org.projectlombok:lombok:$lombokVersion"
+    testCompileOnly "org.jetbrains:annotations:$jetbrainsAnnotation"
+    testAnnotationProcessor "org.projectlombok:lombok:$lombokVersion"
+    testAnnotationProcessor platform("io.micronaut:micronaut-bom:$micronautVersion")
+    testAnnotationProcessor "io.micronaut:micronaut-inject-java"
+    testImplementation "org.junit.jupiter:junit-jupiter-api"
+    testImplementation "io.micronaut.test:micronaut-test-junit5"
+    testRuntimeOnly "org.junit.jupiter:junit-jupiter-engine"
+}
+
+test.classpath += configurations.developmentOnly
+mainClassName = "com.ss.kiosk.Launcher"
+
+test {
+    useJUnitPlatform()
+}
+
+tasks.withType(JavaCompile) {
+    options.encoding = "UTF-8"
+    options.compilerArgs.add('-parameters')
+}
+
+shadowJar {
+    mergeServiceFiles()
+}
+
+run.classpath += configurations.developmentOnly
+
+wrapper {
+    gradleVersion = '6.0'
+    distributionType = Wrapper.DistributionType.ALL
+}
