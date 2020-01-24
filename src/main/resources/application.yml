@@ -1,8 +1,11 @@
 local-cache:
-  folder: '/home/javasabr/image_test/'
+  folder: ${user.home}/image_test
   reload-interval: 120
 
-image-viewer:
+render:
   switch-interval: 10
-  image-mode: 'horizontal'
+  image-mode: horizontal
   rotation: 0
+  width: 400
+  height: 400
+

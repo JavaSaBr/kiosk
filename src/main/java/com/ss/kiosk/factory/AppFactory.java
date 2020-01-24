@@ -16,7 +16,7 @@
 package com.ss.kiosk.factory;
 
 import com.ss.kiosk.FxInitializer;
-import com.ss.kiosk.config.ImageViewerConfig;
+import com.ss.kiosk.config.RenderConfig;
 import com.ss.kiosk.config.LocalCacheConfig;
 import com.ss.kiosk.service.ImageRotationService;
 import com.ss.kiosk.service.LocalCacheService;
@@ -45,9 +45,7 @@ public class AppFactory {
     }
 
     @Singleton
-    public @NotNull ImageRotationService imageRotationService(
-        @NotNull LocalCacheService localCacheService
-    ) {
+    public @NotNull ImageRotationService imageRotationService(@NotNull LocalCacheService localCacheService) {
         return new ImageRotationService(localCacheService);
     }
 
@@ -64,7 +62,7 @@ public class AppFactory {
         log.info(
             """
             Start cache service with settings: {
-                reload-interval: {},
+                reload-interval: {}
             }""",
             config.getReloadInterval()
         );
@@ -93,7 +91,7 @@ public class AppFactory {
     public @NotNull ImageViewer imageViewer(
         @NotNull Stage rootWindow,
         @NotNull ImageRotationService imageRotationService,
-        @NotNull ImageViewerConfig config,
+        @NotNull RenderConfig config,
         @NotNull ScheduledExecutorService scheduledExecutorService
     ) {
 
@@ -101,6 +99,8 @@ public class AppFactory {
             .imageMode(config.getImageMode())
             .rotation(config.getRotation())
             .stage(rootWindow)
+            .renderHeight(config.getHeight())
+            .renderWidth(config.getWidth())
             .imageRotationService(imageRotationService)
             .build();
 
@@ -111,9 +111,15 @@ public class AppFactory {
             Start image viewer with settings: {
                 switch-interval: {},
                 image-mode: "{}",
+                rotation: "{}",
+                with: "{}",
+                height: "{}"
             }""",
             config.getSwitchInterval(),
-            config.getImageMode()
+            config.getImageMode(),
+            config.getRotation(),
+            config.getWidth(),
+            config.getHeight()
         );
 
         scheduledExecutorService.scheduleWithFixedDelay(

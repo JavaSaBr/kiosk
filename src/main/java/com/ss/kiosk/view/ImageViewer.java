@@ -15,7 +15,7 @@
  */
 package com.ss.kiosk.view;
 
-import com.ss.kiosk.config.ImageViewerConfig.ImageMode;
+import com.ss.kiosk.config.RenderConfig.ImageMode;
 import com.ss.kiosk.service.ImageRotationService;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
@@ -25,6 +25,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
+import javafx.stage.StageStyle;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import org.jetbrains.annotations.NotNull;
@@ -39,14 +40,20 @@ public class ImageViewer {
     private final @NotNull StackPane container = new StackPane();
 
     private final int rotation;
+    private final int renderWidth;
+    private final int renderHeight;
 
     public void initializeAndLoad() {
         container.setAlignment(Pos.CENTER);
         loadNext();
+        stage.initStyle(StageStyle.UNDECORATED);
         stage.setOnCloseRequest(event -> System.exit(0));
-        stage.setScene(new Scene(container, Color.WHITE));
-        stage.setFullScreen(true);
+        stage.setScene(new Scene(container, Color.BLACK));
+        stage.setWidth(renderWidth);
+        stage.setHeight(renderHeight);
         stage.show();
+        stage.setX(0);
+        stage.setY(0);
     }
 
     public void loadNext() {

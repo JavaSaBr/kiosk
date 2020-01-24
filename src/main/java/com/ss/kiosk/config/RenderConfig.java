@@ -25,8 +25,8 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @ToString
-@ConfigurationProperties("image-viewer")
-public class ImageViewerConfig {
+@ConfigurationProperties("render")
+public class RenderConfig {
 
     public enum ImageMode {
         horizontal,
@@ -37,4 +37,6 @@ public class ImageViewerConfig {
 
     private int switchInterval;
     private int rotation;
+    private int width;
+    private int height;
 }
