@@ -80,7 +80,7 @@ public class ImageRepository {
 
         List<RemoteImage> remoteImages = gson.fromJson(httpResponse.body(), REMOTE_IMAGES_LIST_TYPE);
 
-        log.info("Received response: {}", remoteImages);
+        log.info("Received parsed data: {}", gson.toJson(remoteImages));
 
         localCacheService.reload(remoteImages);
     }

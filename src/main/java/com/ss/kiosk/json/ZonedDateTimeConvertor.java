@@ -18,10 +18,7 @@ package com.ss.kiosk.json;
 
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_DATE;
 import static java.time.format.DateTimeFormatter.ISO_LOCAL_TIME;
-import com.google.gson.JsonDeserializationContext;
-import com.google.gson.JsonDeserializer;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParseException;
+import com.google.gson.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -32,7 +29,7 @@ import java.time.ZonedDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
 
-public class ZonedDateTimeDeserializer implements JsonDeserializer<ZonedDateTime> {
+public class ZonedDateTimeConvertor implements JsonDeserializer<ZonedDateTime>, JsonSerializer<ZonedDateTime> {
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER = new DateTimeFormatterBuilder()
         .parseCaseInsensitive()
@@ -58,5 +55,14 @@ public class ZonedDateTimeDeserializer implements JsonDeserializer<ZonedDateTime
             LocalDateTime.parse(json.getAsString(), DATE_TIME_FORMATTER),
             ZoneId.systemDefault()
         );
+    }
+
+    @Override
+    public @NotNull JsonElement serialize(
+        @Nullable ZonedDateTime src,
+        @NotNull Type typeOfSrc,
+        @NotNull JsonSerializationContext context
+    ) {
+        return src == null ? JsonNull.INSTANCE : new JsonPrimitive(DateTimeFormatter.ISO_DATE_TIME.format(src));
     }
 }

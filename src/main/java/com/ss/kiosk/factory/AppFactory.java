@@ -21,7 +21,7 @@ import com.ss.kiosk.FxInitializer;
 import com.ss.kiosk.config.ImageRepositoryConfig;
 import com.ss.kiosk.config.RenderConfig;
 import com.ss.kiosk.config.LocalCacheConfig;
-import com.ss.kiosk.json.ZonedDateTimeDeserializer;
+import com.ss.kiosk.json.ZonedDateTimeConvertor;
 import com.ss.kiosk.repository.ImageRepository;
 import com.ss.kiosk.service.ImageRotationService;
 import com.ss.kiosk.service.LocalCacheService;
@@ -189,7 +189,8 @@ public class AppFactory {
     @Singleton
     public @NotNull Gson gson() {
         return new GsonBuilder()
-            .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeDeserializer())
+            .registerTypeAdapter(ZonedDateTime.class, new ZonedDateTimeConvertor())
+            .setPrettyPrinting()
             .create();
     }
 }
