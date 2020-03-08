@@ -17,17 +17,23 @@ package com.ss.kiosk.service;
 
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toMap;
+import com.ss.kiosk.model.RemoteImage;
 import com.ss.rlib.common.util.FileUtils;
-import com.ss.rlib.common.util.Utils;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
+@Slf4j
 @RequiredArgsConstructor
 public class LocalCacheService {
 
@@ -41,15 +47,82 @@ public class LocalCacheService {
     public void initializeAndLoad() {
 
         if (!Files.exists(cacheFolder)) {
-            Utils.unchecked(cacheFolder, Files::createDirectories);
+            FileUtils.createDirectories(cacheFolder);
         }
 
         reload();
     }
 
     public void reload() {
-        images = Utils.uncheckedGet(cacheFolder, Files::list)
+
+        if (!Files.exists(cacheFolder)) {
+            FileUtils.createDirectories(cacheFolder);
+        }
+
+        images = FileUtils.getFiles(cacheFolder)
+            .stream()
             .filter(path -> SUPPORTED_EXTENSIONS.contains(FileUtils.getExtension(path)))
             .collect(toList());
+    }
+
+    public void reload(@NotNull List<RemoteImage> remoteImages) {
+
+        var filesInCache = FileUtils.getFiles(cacheFolder);
+        var fileNameToFile = filesInCache.stream()
+            .filter(path -> SUPPORTED_EXTENSIONS.contains(FileUtils.getExtension(path)))
+            .collect(toMap(path -> path.getFileName().toString(), Function.identity()));
+
+        for (var remoteImage : remoteImages) {
+
+            if (remoteImage.getName() == null) {
+                log.warn("Invalid remote image: {}", remoteImage);
+                continue;
+            }
+
+            var cachedFile = fileNameToFile.get(remoteImage.getName());
+
+            // if this image was not cached previously
+            if (cachedFile == null) {
+                var newFile = cacheFolder.resolve(remoteImage.getName());
+                try {
+                    log.info("Download new image from URL: \"{}\"", remoteImage.getUrl());
+                    Files.copy(remoteImage.getUrl().openStream(), newFile, StandardCopyOption.REPLACE_EXISTING);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+                continue;
+            }
+
+            var lastModifiedTime = FileUtils
+                .getLastModifiedTime(cachedFile)
+                .toInstant();
+
+            // if we have new version of the cached file
+            if (remoteImage.getLastModified() == null || lastModifiedTime.isBefore(lastModifiedTime)) {
+                try {
+                    // delete old version to avoid any reading during re-writing
+                    log.info("Delete old version of cached image: \"{}\"", cachedFile);
+                    Files.deleteIfExists(cachedFile);
+                    log.info("Download updated image from URL: \"{}\"", remoteImage.getUrl());
+                    Files.copy(remoteImage.getUrl().openStream(), cachedFile);
+                } catch (IOException e) {
+                    log.error(e.getMessage(), e);
+                }
+            } else {
+                log.info("Cached image \"{}\" is up to date", cachedFile);
+            }
+        }
+
+        var nameToRemoteImage = remoteImages
+            .stream()
+            .collect(toMap(RemoteImage::getName, Function.identity()));
+
+        fileNameToFile.entrySet()
+            .stream()
+            .filter(entry -> !nameToRemoteImage.containsKey(entry.getKey()))
+            .peek(entry -> log.info("Delete unnecessary cached image: {}", entry.getValue()))
+            .forEach(entry -> FileUtils.delete(entry.getValue()));
+
+        reload();
     }
 }

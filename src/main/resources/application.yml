@@ -1,6 +1,6 @@
 local-cache:
   folder: ${user.home}/image_test
-  reload-interval: 120
+  reload-interval: 15
 
 render:
   switch-interval: 10
@@ -8,4 +8,9 @@ render:
   rotation: 0
   width: 400
   height: 400
+
+image-repository:
+  method: GET
+  url: https://public-crm-catalog.tipscrm.ru/tv?device_id=2
+  reload-interval: 30
 

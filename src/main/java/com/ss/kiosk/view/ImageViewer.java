@@ -28,8 +28,10 @@ import javafx.stage.Stage;
 import javafx.stage.StageStyle;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
+@Slf4j
 @Builder
 @RequiredArgsConstructor
 public class ImageViewer {
@@ -44,52 +46,63 @@ public class ImageViewer {
     private final int renderHeight;
 
     public void initializeAndLoad() {
-        container.setAlignment(Pos.CENTER);
-        loadNext();
-        stage.initStyle(StageStyle.UNDECORATED);
-        stage.setOnCloseRequest(event -> System.exit(0));
-        stage.setScene(new Scene(container, Color.BLACK));
-        stage.setWidth(renderWidth);
-        stage.setHeight(renderHeight);
-        stage.show();
-        stage.setX(0);
-        stage.setY(0);
+        Platform.runLater(() -> {
+            container.setAlignment(Pos.CENTER);
+
+            stage.initStyle(StageStyle.UNDECORATED);
+            stage.setOnCloseRequest(event -> System.exit(0));
+            stage.setScene(new Scene(container, Color.BLACK));
+            stage.setWidth(renderWidth);
+            stage.setHeight(renderHeight);
+            stage.show();
+            stage.setX(0);
+            stage.setY(0);
+
+            loadInFxThread();
+        });
     }
 
     public void loadNext() {
-        Platform.runLater(() -> {
+        Platform.runLater(this::loadInFxThread);
+    }
 
-            var url = imageRotationService
-                .nextImage()
-                .toUri()
-                .toString();
+    private void loadInFxThread() {
 
-            var image = new Image(url);
-            var imageView = new ImageView(image);
-            imageView.setPreserveRatio(true);
-            imageView.setRotate(rotation);
+        var nextImage = imageRotationService.nextImage();
 
-            switch (imageMode) {
-                case horizontal: {
-                    imageView.fitWidthProperty().bind(stage.widthProperty());
-                    imageView.fitHeightProperty().bind(stage.heightProperty());
-                    break;
-                }
-                case vertical: {
-                    imageView.fitWidthProperty().bind(stage.heightProperty());
-                    imageView.fitHeightProperty().bind(stage.widthProperty());
-                }
+        if (nextImage == null) {
+            log.warn("No any cached images...");
+            return;
+        }
+
+        var url = nextImage
+            .toUri()
+            .toString();
+
+        var image = new Image(url);
+        var imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setRotate(rotation);
+
+        switch (imageMode) {
+            case horizontal -> {
+                imageView.fitWidthProperty().bind(stage.widthProperty());
+                imageView.fitHeightProperty().bind(stage.heightProperty());
             }
+            case vertical -> {
+                imageView.fitWidthProperty().bind(stage.heightProperty());
+                imageView.fitHeightProperty().bind(stage.widthProperty());
+            }
+        }
 
-            var children = container.getChildren();
-            children.stream()
-                .filter(ImageView.class::isInstance)
-                .map(ImageView.class::cast)
-                .peek(iw -> iw.fitHeightProperty().unbind())
-                .forEach(iw -> iw.fitWidthProperty().unbind());
+        var children = container.getChildren();
+        children.stream()
+            .filter(ImageView.class::isInstance)
+            .map(ImageView.class::cast)
+            .peek(iw -> iw.fitHeightProperty().unbind())
+            .forEach(iw -> iw.fitWidthProperty().unbind());
 
-            children.clear();
-            children.add(imageView);
-        });
+        children.clear();
+        children.add(imageView);
     }
 }
