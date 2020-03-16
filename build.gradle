@@ -107,7 +107,34 @@ shadowJar {
 
 run.classpath += configurations.developmentOnly
 
+task copyJarFile(type: Copy) {
+    from file("$buildDir/libs/kiosk.jar")
+    into file("$buildDir/finalDist")
+}
+
+task copyShFile(type: Copy) {
+    from file("$buildDir/../kiosk.sh")
+    into file("$buildDir/finalDist")
+}
+
+task copyYumFile(type: Copy) {
+    from file("$rootDir/src/main/resources/application.yml")
+    into file("$buildDir/finalDist")
+}
+
+task buildFinalDist(type: Zip) {
+    archiveFileName = "kiosk-dist-${version}.zip"
+    destinationDirectory = file("$buildDir/dist")
+    from "$buildDir/finalDist"
+}
+
+task buildSingleArtifact(type: GradleBuild) {
+    group = 'build'
+    tasks = ['clean', 'build', 'copyJarFile', 'copyShFile', 'copyYumFile', 'buildFinalDist']
+}
+
 wrapper {
     gradleVersion = '6.0'
     distributionType = Wrapper.DistributionType.ALL
 }
+
