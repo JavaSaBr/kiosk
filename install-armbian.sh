@@ -15,7 +15,6 @@ echo 'unclutter &' >> /root/.xinitrc
 echo 'bash kiosk.sh' >> /root/.xinitrc
 
 # autostartup
-nano /etc/rc.local
 touch /etc/rc.local
 echo 'sh -c "export HOME=/root; startx" &' >> /etc/rc.local
 
