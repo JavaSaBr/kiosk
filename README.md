@@ -74,7 +74,7 @@ You can configure any endpoint in properties file like:
 ```yaml
 image-repository:
   method: GET
-  url: https://public-crm-catalog.tipscrm.ru/tv?device_id=2
+  url: https://your-repository.com/images
   reload-interval: 30
 
 ```
@@ -83,12 +83,12 @@ Which should return json content like:
 [
   {
     "name": "Image1.jpg",
-    "url": "https://public-crm-catalog.tipscrm.ru/image/Image1.jpg",
+    "url": "https://your-repository.com/image/Image1.jpg",
     "lastModified": "2021-01-03T10:15:30+01:00"
   },
   {
     "name": "Image2.jpg",
-    "url": "https://public-crm-catalog.tipscrm.ru/image/Image2.jpg",
+    "url": "https://your-repository.com/image/Image2.jpg",
     "lastModified": "2021-01-01T15:00:30+01:00"
   }
 ]

@@ -11,6 +11,6 @@ render:
 
 image-repository:
   method: GET
-  url: https://public-crm-catalog.tipscrm.ru/tv?device_id=2
+  url: https://your-repository.com/images
   reload-interval: 30
 
