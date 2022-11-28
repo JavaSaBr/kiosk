@@ -16,27 +16,18 @@
 package com.ss.kiosk.config;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import org.jetbrains.annotations.NotNull;
 
-import javax.validation.constraints.NotNull;
-
-@Getter
-@Setter
-@ToString
 @ConfigurationProperties("render")
-public class RenderConfig {
+public record RenderConfig(
+    @NotNull ImageMode imageMode,
+    int switchInterval,
+    int rotation,
+    int width,
+    int height) {
 
     public enum ImageMode {
         horizontal,
         vertical
     }
-
-    private @NotNull ImageMode imageMode;
-
-    private int switchInterval;
-    private int rotation;
-    private int width;
-    private int height;
 }

@@ -13,17 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.ss.kiosk.model;
 
-import lombok.Value;
+import org.jetbrains.annotations.Nullable;
 
 import java.net.URL;
 import java.time.ZonedDateTime;
 
-@Value
-public class RemoteImage {
-    String name;
-    URL url;
-    ZonedDateTime lastModified;
-}
+public record RemoteImage(
+    @Nullable String name,
+    @Nullable URL url,
+    @Nullable ZonedDateTime lastModified
+) {}

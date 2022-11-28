@@ -23,18 +23,18 @@ import com.ss.kiosk.config.RenderConfig;
 import com.ss.kiosk.config.LocalCacheConfig;
 import com.ss.kiosk.json.ZonedDateTimeConvertor;
 import com.ss.kiosk.repository.ImageRepository;
-import com.ss.kiosk.service.ImageRotationService;
+import com.ss.kiosk.service.ContentRotationService;
 import com.ss.kiosk.service.LocalCacheService;
-import com.ss.kiosk.view.ImageViewer;
+import com.ss.kiosk.view.ContentViewer;
 import io.micronaut.context.annotation.Context;
 import io.micronaut.context.annotation.Factory;
+import jakarta.inject.Inject;
+import jakarta.inject.Singleton;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
-import javax.inject.Inject;
-import javax.inject.Singleton;
 import java.net.http.HttpClient;
 import java.nio.file.Paths;
 import java.time.ZonedDateTime;
@@ -52,8 +52,8 @@ public class AppFactory {
     }
 
     @Singleton
-    public @NotNull ImageRotationService imageRotationService(@NotNull LocalCacheService localCacheService) {
-        return new ImageRotationService(localCacheService);
+    public @NotNull ContentRotationService imageRotationService(@NotNull LocalCacheService localCacheService) {
+        return new ContentRotationService(localCacheService);
     }
 
     @Inject
@@ -63,7 +63,7 @@ public class AppFactory {
         @NotNull ScheduledExecutorService scheduledExecutorService
     ) {
 
-        var service = new LocalCacheService(Paths.get(config.getFolder()));
+        var service = new LocalCacheService(Paths.get(config.folder()));
 
         scheduledExecutorService.execute(service::initializeAndLoad);
 
@@ -73,14 +73,14 @@ public class AppFactory {
                 folder: "{}",
                 reload-interval: {}
             }""",
-            config.getFolder(),
-            config.getReloadInterval()
+            config.folder(),
+            config.reloadInterval()
         );
 
         scheduledExecutorService.scheduleWithFixedDelay(
             service::reload,
-            config.getReloadInterval(),
-            config.getReloadInterval(),
+            config.reloadInterval(),
+            config.reloadInterval(),
             TimeUnit.SECONDS
         );
 
@@ -107,15 +107,15 @@ public class AppFactory {
                 url: "{}",
                 reload-interval: {}
             }""",
-            config.getMethod(),
-            config.getUrl(),
-            config.getReloadInterval()
+            config.method(),
+            config.url(),
+            config.reloadInterval()
         );
 
         scheduledExecutorService.scheduleWithFixedDelay(
             service::reload,
-            config.getReloadInterval(),
-            config.getReloadInterval(),
+            config.reloadInterval(),
+            config.reloadInterval(),
             TimeUnit.SECONDS
         );
 
@@ -133,21 +133,21 @@ public class AppFactory {
     }
 
     @Context
-    public @NotNull ImageViewer imageViewer(
+    public @NotNull ContentViewer imageViewer(
         @NotNull Stage rootWindow,
-        @NotNull ImageRotationService imageRotationService,
+        @NotNull ContentRotationService contentRotationService,
         @NotNull RenderConfig config,
         @NotNull ImageRepository imageRepository,
         @NotNull ScheduledExecutorService scheduledExecutorService
     ) {
 
-        var viewer = ImageViewer.builder()
-            .imageMode(config.getImageMode())
-            .rotation(config.getRotation())
+        var viewer = ContentViewer.builder()
+            .imageMode(config.imageMode())
+            .rotation(config.rotation())
             .stage(rootWindow)
-            .renderHeight(config.getHeight())
-            .renderWidth(config.getWidth())
-            .imageRotationService(imageRotationService)
+            .renderHeight(config.height())
+            .renderWidth(config.width())
+            .contentRotationService(contentRotationService)
             .build();
 
         viewer.initializeAndLoad();
@@ -161,17 +161,17 @@ public class AppFactory {
                 with: {},
                 height: {}
             }""",
-            config.getSwitchInterval(),
-            config.getImageMode(),
-            config.getRotation(),
-            config.getWidth(),
-            config.getHeight()
+            config.switchInterval(),
+            config.imageMode(),
+            config.rotation(),
+            config.width(),
+            config.height()
         );
 
         scheduledExecutorService.scheduleWithFixedDelay(
             viewer::loadNext,
-            config.getSwitchInterval(),
-            config.getSwitchInterval(),
+            config.switchInterval(),
+            config.switchInterval(),
             TimeUnit.SECONDS
         );
 

@@ -13,18 +13,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.ss.kiosk.config;
 
 import io.micronaut.context.annotation.ConfigurationProperties;
-import lombok.Data;
+import org.jetbrains.annotations.NotNull;
 
-@Data
 @ConfigurationProperties("image-repository")
-public class ImageRepositoryConfig {
-
-    private String method;
-    private String url;
-
-    private int reloadInterval;
-}
+public record ImageRepositoryConfig(
+    @NotNull String method,
+    @NotNull String url,
+    int reloadInterval
+) {}

@@ -53,8 +53,8 @@ public class ImageRepository {
         this.gson = gson;
         this.httpClient = httpClient;
         this.localCacheService = localCacheService;
-        this.request = HttpRequest.newBuilder(URI.create(config.getUrl()))
-            .method(config.getMethod(), BodyPublishers.noBody())
+        this.request = HttpRequest.newBuilder(URI.create(config.url()))
+            .method(config.method(), BodyPublishers.noBody())
             .build();
     }
 

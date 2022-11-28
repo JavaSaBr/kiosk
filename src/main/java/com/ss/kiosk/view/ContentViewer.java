@@ -16,7 +16,7 @@
 package com.ss.kiosk.view;
 
 import com.ss.kiosk.config.RenderConfig.ImageMode;
-import com.ss.kiosk.service.ImageRotationService;
+import com.ss.kiosk.service.ContentRotationService;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -26,24 +26,27 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
 
 @Slf4j
 @Builder
 @RequiredArgsConstructor
-public class ImageViewer {
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ContentViewer {
 
-    private final @NotNull Stage stage;
-    private final @NotNull ImageMode imageMode;
-    private final @NotNull ImageRotationService imageRotationService;
-    private final @NotNull StackPane container = new StackPane();
+    @NotNull Stage stage;
+    @NotNull ImageMode imageMode;
+    @NotNull ContentRotationService contentRotationService;
+    @NotNull StackPane container = new StackPane();
 
-    private final int rotation;
-    private final int renderWidth;
-    private final int renderHeight;
+    int rotation;
+    int renderWidth;
+    int renderHeight;
 
     public void initializeAndLoad() {
         Platform.runLater(() -> {
@@ -68,10 +71,10 @@ public class ImageViewer {
 
     private void loadInFxThread() {
 
-        var nextImage = imageRotationService.nextImage();
+        var nextImage = contentRotationService.nextContentFile();
 
         if (nextImage == null) {
-            log.warn("No any cached images...");
+            log.warn("No any cached content...");
             return;
         }
 

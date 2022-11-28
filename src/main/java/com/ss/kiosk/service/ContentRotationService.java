@@ -15,7 +15,9 @@
  */
 package com.ss.kiosk.service;
 
+import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -23,12 +25,13 @@ import java.nio.file.Path;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @RequiredArgsConstructor
-public class ImageRotationService {
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
+public class ContentRotationService {
 
-    private final @NotNull LocalCacheService localCacheService;
-    private final @NotNull AtomicInteger index = new AtomicInteger(0);
+    @NotNull LocalCacheService localCacheService;
+    @NotNull AtomicInteger index = new AtomicInteger(0);
 
-    public @Nullable Path nextImage() {
+    public @Nullable Path nextContentFile() {
 
         var nextIndex = index.incrementAndGet();
         var images = localCacheService.getImages();

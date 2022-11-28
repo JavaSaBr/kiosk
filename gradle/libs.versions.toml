@@ -1,0 +1,38 @@
+[versions]
+rlib = "9.9.1"
+# https://mvnrepository.com/artifact/io.micronaut/micronaut-runtime
+micronaut = "3.7.4"
+# https://mvnrepository.com/artifact/io.micronaut.test/micronaut-test-core
+micronaut-test = "3.8.0"
+# https://mvnrepository.com/artifact/org.projectlombok/lombok
+lombok = "1.18.24"
+# https://mvnrepository.com/artifact/org.jetbrains/annotations
+jetbrains-annotations = "23.0.0"
+# https://mvnrepository.com/artifact/com.google.code.gson/gson
+gson = "2.10"
+# https://mvnrepository.com/artifact/ch.qos.logback/logback-core
+logback = "1.4.5"
+# https://mvnrepository.com/artifact/org.slf4j/slf4j-api
+slf4j = "2.0.5"
+# https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
+junit = "5.9.1"
+
+[libraries]
+lombok = { module = "org.projectlombok:lombok", version.ref = "lombok" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+rlib-common = { module = "com.spaceshift:rlib.common", version.ref = "rlib" }
+logback-classic = { module = "ch.qos.logback:logback-classic", version.ref = "logback" }
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+
+micronaut-inject-java = { module = "io.micronaut:micronaut-inject-java", version.ref = "micronaut" }
+micronaut-validation = { module = "io.micronaut:micronaut-validation", version.ref = "micronaut" }
+micronaut-runtime = { module = "io.micronaut:micronaut-runtime", version.ref = "micronaut" }
+micronaut-inject = { module = "io.micronaut:micronaut-inject", version.ref = "micronaut" }
+
+micronaut-test-core = { module = "io.micronaut.test:micronaut-test-core", version.ref = "micronaut-test" }
+
+junit-jupiter-api = { module = "org.junit.jupiter:junit-jupiter-api", version.ref = "junit" }
+junit-jupiter-engine = { module = "org.junit.jupiter:junit-jupiter-engine", version.ref = "junit" }
+
+[bundles]
