@@ -13,7 +13,7 @@ import java.util.stream.Stream;
 public class ContentUtils {
 
     private static final Set<String> IMAGE_EXTENSIONS = Set.of("jpg", "png");
-    private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4");
+    private static final Set<String> VIDEO_EXTENSIONS = Set.of("mp4", "mkv");
     private static final Set<String> SUPPORTED_EXTENSIONS = Stream
         .concat(IMAGE_EXTENSIONS.stream(), VIDEO_EXTENSIONS.stream())
         .collect(Collectors.toUnmodifiableSet());

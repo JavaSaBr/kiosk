@@ -3,7 +3,7 @@
 ## License Apache 2.0
 
 ## Requires
-#### 1. Java 13+
+#### 1. Java 19+
 
 ## How to build for Desktop
 ```shell script
@@ -18,11 +18,11 @@ or
 
 ##  How to use
 ```shell script
-java --enable-preview -jar build/distributions/Kiosk-shadow-0.0.1/lib/Kiosk-0.0.1-all.jar
+java --enable-preview -jar build/finalDist/kiosk.jar
 ```
 ## Installation
-- wget https://download.bell-sw.com/java/13.0.2+9/bellsoft-jre13.0.2+9-linux-aarch64-full.deb
-- dpkg -i bellsoft-jre13.0.2+9-linux-aarch64-full.deb
+- wget https://download.bell-sw.com/java/19.0.1+11/bellsoft-jdk19.0.1+11-linux-aarch64.deb
+- dpkg -i bellsoft-jdk19.0.1+11-linux-aarch64.deb
 - apt install -f
 - apt install xorg
 - apt install xterm

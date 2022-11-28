@@ -136,6 +136,7 @@ public class ContentViewer {
         var media = new Media(url);
         var mediaPlayer = new MediaPlayer(media);
         mediaPlayer.setAutoPlay(true);
+        mediaPlayer.setCycleCount(MediaPlayer.INDEFINITE);
 
         var mediaView = new MediaView(mediaPlayer);
         mediaView.setPreserveRatio(true);
