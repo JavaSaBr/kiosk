@@ -34,17 +34,17 @@ public class ContentRotationService {
     public @Nullable Path nextContentFile() {
 
         var nextIndex = index.incrementAndGet();
-        var images = localCacheService.getImages();
+        var cachedFiles = localCacheService.getCachedFiles();
 
-        if (images.isEmpty()) {
+        if (cachedFiles.isEmpty()) {
             return null;
         }
 
-        if (nextIndex >= images.size()) {
+        if (nextIndex >= cachedFiles.size()) {
             index.compareAndSet(nextIndex, 0);
             nextIndex = 0;
         }
 
-        return images.get(nextIndex);
+        return cachedFiles.get(nextIndex);
     }
 }

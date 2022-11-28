@@ -19,7 +19,7 @@ package com.ss.kiosk.repository;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.ss.kiosk.config.ImageRepositoryConfig;
-import com.ss.kiosk.model.RemoteImage;
+import com.ss.kiosk.model.RemoteContent;
 import com.ss.kiosk.service.LocalCacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
@@ -37,7 +37,7 @@ import java.util.List;
 @Slf4j
 public class ImageRepository {
 
-    private static final Type REMOTE_IMAGES_LIST_TYPE = new TypeToken<List<RemoteImage>>() {}.getType();
+    private static final Type REMOTE_IMAGES_LIST_TYPE = new TypeToken<List<RemoteContent>>() {}.getType();
 
     private final @NotNull HttpRequest request;
     private final @NotNull LocalCacheService localCacheService;
@@ -78,10 +78,10 @@ public class ImageRepository {
 
         log.info("Received raw response: {}", httpResponse.body());
 
-        List<RemoteImage> remoteImages = gson.fromJson(httpResponse.body(), REMOTE_IMAGES_LIST_TYPE);
+        List<RemoteContent> remoteContents = gson.fromJson(httpResponse.body(), REMOTE_IMAGES_LIST_TYPE);
 
-        log.info("Received parsed data: {}", gson.toJson(remoteImages));
+        log.info("Received parsed data: {}", gson.toJson(remoteContents));
 
-        localCacheService.reload(remoteImages);
+        localCacheService.reload(remoteContents);
     }
 }

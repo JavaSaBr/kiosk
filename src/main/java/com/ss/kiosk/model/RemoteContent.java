@@ -20,7 +20,7 @@ import org.jetbrains.annotations.Nullable;
 import java.net.URL;
 import java.time.ZonedDateTime;
 
-public record RemoteImage(
+public record RemoteContent(
     @Nullable String name,
     @Nullable URL url,
     @Nullable ZonedDateTime lastModified

@@ -17,12 +17,17 @@ package com.ss.kiosk.view;
 
 import com.ss.kiosk.config.RenderConfig.ImageMode;
 import com.ss.kiosk.service.ContentRotationService;
+import com.ss.kiosk.util.ContentUtils;
 import javafx.application.Platform;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.StackPane;
+import javafx.scene.media.Media;
+import javafx.scene.media.MediaPlayer;
+import javafx.scene.media.MediaView;
 import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 import javafx.stage.StageStyle;
@@ -32,6 +37,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.jetbrains.annotations.NotNull;
+
+import java.nio.file.Path;
 
 @Slf4j
 @Builder
@@ -71,15 +78,34 @@ public class ContentViewer {
 
     private void loadInFxThread() {
 
-        var nextImage = contentRotationService.nextContentFile();
+        var nextContent = contentRotationService.nextContentFile();
 
-        if (nextImage == null) {
+        if (nextContent == null) {
             log.warn("No any cached content...");
             return;
         }
 
-        var url = nextImage
-            .toUri()
+        var children = container.getChildren();
+        children.forEach(this::cleanupNode);
+        children.clear();
+        children.add(buildViewer(nextContent));
+    }
+
+    @NotNull
+    private Node buildViewer(@NotNull Path content) {
+        if (ContentUtils.isImage(content)) {
+            return buildImageViewer(content);
+        } else if (ContentUtils.isVideo(content)) {
+            return buildVideoViewer(content);
+        } else {
+            throw new IllegalArgumentException("Unsupported content: " + content);
+        }
+    }
+
+    @NotNull
+    private Node buildImageViewer(@NotNull Path content) {
+
+        var url = content.toUri()
             .toString();
 
         var image = new Image(url);
@@ -98,14 +124,44 @@ public class ContentViewer {
             }
         }
 
-        var children = container.getChildren();
-        children.stream()
-            .filter(ImageView.class::isInstance)
-            .map(ImageView.class::cast)
-            .peek(iw -> iw.fitHeightProperty().unbind())
-            .forEach(iw -> iw.fitWidthProperty().unbind());
+        return imageView;
+    }
 
-        children.clear();
-        children.add(imageView);
+    @NotNull
+    private Node buildVideoViewer(@NotNull Path content) {
+
+        var url = content.toUri()
+            .toString();
+
+        var media = new Media(url);
+        var mediaPlayer = new MediaPlayer(media);
+        mediaPlayer.setAutoPlay(true);
+
+        var mediaView = new MediaView(mediaPlayer);
+        mediaView.setPreserveRatio(true);
+        mediaView.setRotate(rotation);
+
+        switch (imageMode) {
+            case horizontal -> {
+                mediaView.fitWidthProperty().bind(stage.widthProperty());
+                mediaView.fitHeightProperty().bind(stage.heightProperty());
+            }
+            case vertical -> {
+                mediaView.fitWidthProperty().bind(stage.heightProperty());
+                mediaView.fitHeightProperty().bind(stage.widthProperty());
+            }
+        }
+
+        return mediaView;
+    }
+
+    protected void cleanupNode(@NotNull Node node) {
+        if (node instanceof MediaView mv) {
+            mv.fitHeightProperty().unbind();
+            mv.fitWidthProperty().unbind();
+        } else if (node instanceof ImageView iv) {
+            iv.fitHeightProperty().unbind();
+            iv.fitWidthProperty().unbind();
+        }
     }
 }

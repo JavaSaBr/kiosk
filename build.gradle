@@ -52,6 +52,7 @@ dependencies {
     
     compileOnly "org.openjfx:javafx-graphics:$javaFxVersion:${osName}"
     compileOnly "org.openjfx:javafx-base:$javaFxVersion:${osName}"
+    compileOnly "org.openjfx:javafx-media:$javaFxVersion:${osName}"
 
     compileOnly libs.jetbrains.annotations
     compileOnly libs.lombok
@@ -70,6 +71,7 @@ dependencies {
     
     if (targetArch == "x64" || targetArch == "x86") {
         implementation "org.openjfx:javafx-base:$javaFxVersion:${osName}"
+        implementation "org.openjfx:javafx-media:$javaFxVersion:${osName}"
         implementation "org.openjfx:javafx-graphics:$javaFxVersion:${osName}"
     }
 

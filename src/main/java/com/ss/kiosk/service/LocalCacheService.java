@@ -18,7 +18,8 @@ package com.ss.kiosk.service;
 import static java.util.Collections.emptyList;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toMap;
-import com.ss.kiosk.model.RemoteImage;
+import com.ss.kiosk.model.RemoteContent;
+import com.ss.kiosk.util.ContentUtils;
 import com.ss.rlib.common.util.FileUtils;
 import lombok.AccessLevel;
 import lombok.Getter;
@@ -32,7 +33,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
-import java.util.Set;
 import java.util.function.Function;
 
 @Slf4j
@@ -40,12 +40,10 @@ import java.util.function.Function;
 @FieldDefaults(level = AccessLevel.PRIVATE)
 public class LocalCacheService {
 
-    private static final Set<String> SUPPORTED_EXTENSIONS = Set.of("jpg", "png");
-
     final @NotNull Path cacheFolder;
 
     @Getter
-    volatile @NotNull List<Path> images = emptyList();
+    volatile @NotNull List<Path> cachedFiles = emptyList();
 
     public void initializeAndLoad() {
 
@@ -62,34 +60,34 @@ public class LocalCacheService {
             FileUtils.createDirectories(cacheFolder);
         }
 
-        images = FileUtils.getFiles(cacheFolder)
+        cachedFiles = FileUtils.getFiles(cacheFolder)
             .stream()
-            .filter(path -> SUPPORTED_EXTENSIONS.contains(FileUtils.getExtension(path)))
+            .filter(ContentUtils::isSupported)
             .collect(toList());
     }
 
-    public void reload(@NotNull List<RemoteImage> remoteImages) {
+    public void reload(@NotNull List<RemoteContent> remoteContents) {
 
         var filesInCache = FileUtils.getFiles(cacheFolder);
         var fileNameToFile = filesInCache.stream()
-            .filter(path -> SUPPORTED_EXTENSIONS.contains(FileUtils.getExtension(path)))
+            .filter(ContentUtils::isSupported)
             .collect(toMap(path -> path.getFileName().toString(), Function.identity()));
 
-        for (var remoteImage : remoteImages) {
+        for (var remoteContent : remoteContents) {
 
-            if (remoteImage.name() == null || remoteImage.url() == null) {
-                log.warn("Invalid remote image: {}", remoteImage);
+            if (remoteContent.name() == null || remoteContent.url() == null) {
+                log.warn("Invalid remote image: {}", remoteContent);
                 continue;
             }
 
-            var cachedFile = fileNameToFile.get(remoteImage.name());
+            var cachedFile = fileNameToFile.get(remoteContent.name());
 
             // if this image was not cached previously
             if (cachedFile == null) {
-                var newFile = cacheFolder.resolve(remoteImage.name());
+                var newFile = cacheFolder.resolve(remoteContent.name());
                 try {
-                    log.info("Download new image from URL: \"{}\"", remoteImage.url());
-                    Files.copy(remoteImage.url().openStream(), newFile, StandardCopyOption.REPLACE_EXISTING);
+                    log.info("Download new image from URL: \"{}\"", remoteContent.url());
+                    Files.copy(remoteContent.url().openStream(), newFile, StandardCopyOption.REPLACE_EXISTING);
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
                 }
@@ -101,29 +99,29 @@ public class LocalCacheService {
                 .toInstant();
 
             // if we have new version of the cached file
-            if (remoteImage.lastModified() == null || lastModifiedTime.isBefore(lastModifiedTime)) {
+            if (remoteContent.lastModified() == null || lastModifiedTime.isBefore(lastModifiedTime)) {
                 try {
                     // delete old version to avoid any reading during re-writing
-                    log.info("Delete old version of cached image: \"{}\"", cachedFile);
+                    log.info("Delete old version of cached content: \"{}\"", cachedFile);
                     Files.deleteIfExists(cachedFile);
-                    log.info("Download updated image from URL: \"{}\"", remoteImage.url());
-                    Files.copy(remoteImage.url().openStream(), cachedFile);
+                    log.info("Download updated content from URL: \"{}\"", remoteContent.url());
+                    Files.copy(remoteContent.url().openStream(), cachedFile);
                 } catch (IOException e) {
                     log.error(e.getMessage(), e);
                 }
             } else {
-                log.info("Cached image \"{}\" is up to date", cachedFile);
+                log.info("Cached content \"{}\" is up to date", cachedFile);
             }
         }
 
-        var nameToRemoteImage = remoteImages
+        var nameToRemoteImage = remoteContents
             .stream()
-            .collect(toMap(RemoteImage::name, Function.identity()));
+            .collect(toMap(RemoteContent::name, Function.identity()));
 
         fileNameToFile.entrySet()
             .stream()
             .filter(entry -> !nameToRemoteImage.containsKey(entry.getKey()))
-            .peek(entry -> log.info("Delete unnecessary cached image: {}", entry.getValue()))
+            .peek(entry -> log.info("Delete unnecessary cached content: {}", entry.getValue()))
             .forEach(entry -> FileUtils.delete(entry.getValue()));
 
         reload();
